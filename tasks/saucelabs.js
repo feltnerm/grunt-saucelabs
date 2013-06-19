@@ -591,7 +591,7 @@ module.exports = function(grunt) {
       };
 
       driver.safeEval("window.mochaResults", function(err, results) {
-        if (error) {
+        if (err) {
           grunt.log.error('Error - Could not check if tests are completed: %s', err);
           callback(false);
           return;
