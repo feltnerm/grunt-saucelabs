@@ -177,7 +177,7 @@ module.exports = function(grunt) {
       testPages: function(pages, testTimeout, testInterval, testReadyTimeout, detailedError, callback) {
         function initBrowser(cfg) {
           var success = true;
-          var results = [];
+          var results = {};
 
           function onPageTested(status, page, config, browser, cb) {
             var waitForAsync = false;
@@ -211,7 +211,7 @@ module.exports = function(grunt) {
                 return;
               }
               var finished = function(cb) {
-                if (results.length > 0 && typeof saucify === 'function') {
+                if (results && typeof saucify === 'function') {
                   me.report.result(driver.sessionID, saucify(results), function() {
                     cb(success);
                   });
@@ -239,7 +239,7 @@ module.exports = function(grunt) {
                   }
                   driver.page = pages[j];
                   runner.call(me, driver, cfg, testTimeout, testInterval, testReadyTimeout, detailedError, function(status, obj) {
-                    results.push(obj);
+                    results = obj;
                     onPageTested(status, pages[j], cfg, driver, function() {
                       testPage(j + 1);
                     });
@@ -431,18 +431,8 @@ module.exports = function(grunt) {
   };
 
   TestRunner.prototype.mochaSaucify = function(results) {
-    var out = {'custom-data': {}};
-    _.each(results, function (result, i) {
-      if ( result !== null) {
-        var keyName = i === 0 ? 'mocha' : 'mocha' + i;
-        out['custom-data'][keyName] = {
-          failed: result[2],
-          passed: result[1],
-          total: result[4],
-          runtime: +result[3] * 1000
-        };
-      }
-    });
+    var out = {'custom-data': { mocha: {} }};
+    out['custom-data'].mocha = results;
     return out;
   };
 
@@ -576,9 +566,8 @@ module.exports = function(grunt) {
   };
 
   TestRunner.prototype.mochaRunner = function(driver, cfg, testTimeout, testInterval, testReadyTimeout, detailedError, callback) {
-      var retryCount = 0;
     grunt.verbose.writeln("[%s] Starting mocha tests for page", cfg.prefix);
-    driver.waitForCondition("window.chocoReady", testReadyTimeout, function (err, boolean) {
+    driver.waitForCondition("window.chocoReady", testReadyTimeout, function (err) {
       if (err) {
         grunt.log.error("[%s] Could not read test result for %s", cfg.prefix, err, driver.page);
         grunt.log.error("[%s] More details at http://saucelabs.com/tests/%s", cfg.prefix, driver.page);
@@ -590,24 +579,28 @@ module.exports = function(grunt) {
         cb(status, result);
       };
 
-      driver.safeEval("window.mochaResults", function(err, results) {
+      driver.safeEval("JSON.stringify(window.mochaResults)", function(err, results) {
         if (err) {
           grunt.log.error('Error - Could not check if tests are completed: %s', err);
           callback(false);
           return;
         }
 
+        var res = JSON.parse(results);
+
         grunt.log.subhead('\nTested %s', driver.page);
         grunt.log.writeln("Environment: %s", cfg.prefix);
+        grunt.log.subhead("Stats");
+        grunt.log.writeln("Start: %s", res.start.toString());
+        grunt.log.writeln("End: %s", res.end.toString());
+        grunt.log.writeln("Duration: %s", res.duration);
+        grunt.log.writeln("Passes: %s", res.passes);
+        grunt.log.writeln("Failures: %s", res.failures);
+        grunt.log.writeln("Pending: %s", res.pending);
+        grunt.log.writeln("Tests: %s", res.tests);
 
-        if (detailedError) {
-          return showDetailedError(function() {
-            fetchResults(callback, false, results);
-          });
-        } else {
-          grunt.log.ok("Result: %s", results);
-          fetchResults(callback, true, results);
-        }
+        fetchResults(callback, res.failures === 0, res.jsonReport);
+
         grunt.log.writeln("Test Video: http://saucelabs.com/tests/%s", driver.sessionID);
       });
     });
