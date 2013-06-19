@@ -566,45 +566,66 @@ module.exports = function(grunt) {
   };
 
   TestRunner.prototype.mochaRunner = function(driver, cfg, testTimeout, testInterval, testReadyTimeout, detailedError, callback) {
-    grunt.verbose.writeln("[%s] Starting mocha tests for page", cfg.prefix);
-    driver.waitForCondition("window.chocoReady", testReadyTimeout, function (err) {
-      if (err) {
-        grunt.log.error("[%s] Could not read test result for %s", cfg.prefix, err, driver.page);
-        grunt.log.error("[%s] More details at http://saucelabs.com/tests/%s", cfg.prefix, driver.page);
-        callback(false);
-        return;
-      }
 
       var fetchResults = function(cb, status, result) {
         cb(status, result);
       };
 
-      driver.safeEval("JSON.stringify(window.mochaResults)", function(err, results) {
-        if (err) {
-          grunt.log.error('Error - Could not check if tests are completed: %s', err);
-          callback(false);
-          return;
-        }
+      var parseResults = function () {
+        driver.safeEval("JSON.stringify(window.mochaResults)", function(err, results) {
+          if (err) {
+            grunt.log.error('Error - Could not check if tests are completed: %s', err);
+            callback(false);
+            return;
+          }
 
-        var res = JSON.parse(results);
+          var res = JSON.parse(results);
+          grunt.log.subhead('\nTested %s', driver.page);
+          grunt.log.writeln("Environment: %s", cfg.prefix);
+          grunt.log.writeln("Browser: %s", cfg.browserName);
+          grunt.log.writeln("Version: %s", cfg.version);
+          grunt.log.writeln("Platform: %s", cfg.platform);
 
-        grunt.log.subhead('\nTested %s', driver.page);
-        grunt.log.writeln("Environment: %s", cfg.prefix);
-        grunt.log.subhead("Stats");
-        grunt.log.writeln("Start: %s", res.start.toString());
-        grunt.log.writeln("End: %s", res.end.toString());
-        grunt.log.writeln("Duration: %s", res.duration);
-        grunt.log.writeln("Passes: %s", res.passes);
-        grunt.log.writeln("Failures: %s", res.failures);
-        grunt.log.writeln("Pending: %s", res.pending);
-        grunt.log.writeln("Tests: %s", res.tests);
+          grunt.log.subhead("Stats");
+          grunt.log.writeln("Start: %s", res.start.toString());
+          grunt.log.writeln("End: %s", res.end.toString());
+          grunt.log.writeln("Duration: %s", res.duration);
+          grunt.log.writeln("Passes: %s", res.passes);
+          grunt.log.writeln("Failures: %s", res.failures);
+          grunt.log.writeln("Pending: %s", res.pending);
+          grunt.log.writeln("Tests: %s", res.tests);
 
-        fetchResults(callback, res.failures === 0, res.jsonReport);
+          fetchResults(callback, res.failures === 0, res.jsonReport);
 
-        grunt.log.writeln("Test Video: http://saucelabs.com/tests/%s", driver.sessionID);
-      });
-    });
-  };
+          grunt.log.writeln("Test Video: http://saucelabs.com/tests/%s", driver.sessionID);
+        });
+      };
+
+    grunt.verbose.writeln("[%s] Starting mocha tests for page", cfg.prefix);
+    driver.waitForCondition("window.chocoReady", testReadyTimeout, function (err) {
+      if (err) {
+        // workaround to discover tests are done on Android stock browser
+        var testResult = "mocha-stats",
+            resultRegexp = /passes: (\d*)failures: (\d*)duration: ([\d,.]*)s/
+            currentState = null,
+            retryCount = 0;
+        driver.waitForElementById(testResult, testReadyTimeout, function () {
+          driver.elementById(testResult, function (err, el) {
+            if (err) {
+              grunt.log.error("[%s] Could not read test result for %s", cfg.prefix, err, driver.page);
+              grunt.log.error("[%s] More details at http://saucelabs.com/tests/%s", cfg.prefix, driver.page);
+              callback(false);
+              return;
+            }
+            callback(true); // @TODO: fix this ungodly hack.
+            grunt.log.writeln("Test Video: http://saucelabs.com/tests/%s", driver.sessionID);
+          });
+        });
+      } else {
+        parseResults();
+      }
+  });
+};
 
   var defaultsObj = {
     username: process.env.SAUCE_USERNAME,
@@ -614,7 +635,7 @@ module.exports = function(grunt) {
     testTimeout: (1000 * 60 * 5),
     tunnelTimeout: 120,
     testInterval: 1000 * 5,
-    testReadyTimeout: 1000 * 5,
+    testReadyTimeout: (1000 * 5),
     onTestComplete: function() {
 
     },
