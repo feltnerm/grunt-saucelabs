@@ -2,7 +2,7 @@
   "name": "grunt-saucelabs",
   "description": "Grunt task running tests using Sauce Labs. Supports Qunit and Jasmine tests",
   "version": "4.0.4",
-  "homepage": "https://github.com/axemclion/grunt-saucelabs",
+  "homepage": "https://github.com/feltnerm/grunt-saucelabs",
   "author": {
     "name": "Parashuram",
     "email": "code@nparashuram.com",
@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/axemclion/grunt-saucelabs.git"
+    "url": "git://github.com/feltnerm/grunt-saucelabs.git"
   },
   "bugs": {
-    "url": "https://github.com/axemclion/grunt-saucelabs/issues"
+    "url": "https://github.com/feltnerm/grunt-saucelabs/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/axemclion/grunt-saucelabs/blob/master/LICENSE-MIT"
+      "url": "https://github.com/feltnerm/grunt-saucelabs/blob/master/LICENSE-MIT"
     }
   ],
   "main": "grunt.js",
