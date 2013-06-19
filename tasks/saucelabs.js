@@ -605,7 +605,7 @@ module.exports = function(grunt) {
             fetchResults(callback, false, results);
           });
         } else {
-          grunt.log.ok("Result: %s", results));
+          grunt.log.ok("Result: %s", results);
           fetchResults(callback, true, results);
         }
         grunt.log.writeln("Test Video: http://saucelabs.com/tests/%s", driver.sessionID);
