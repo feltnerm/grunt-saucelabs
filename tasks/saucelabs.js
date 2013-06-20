@@ -330,7 +330,7 @@ module.exports = function(grunt) {
       };
 
     grunt.verbose.writeln("[%s] Starting mocha tests for page", cfg.prefix);
-    driver.waitForConditionInBrowser("window.chocoReady", testReadyTimeout, testInterval, function (err) {
+    driver.waitForCondition("window.chocoReady", testReadyTimeout, testInterval, function (err) {
       if (err) {
         grunt.log.debug("[%s] Unable to find `mocha.chocoReady` object.", cfg.prefix);
         callback(false);
