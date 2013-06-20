@@ -330,31 +330,11 @@ module.exports = function(grunt) {
       };
 
     grunt.verbose.writeln("[%s] Starting mocha tests for page", cfg.prefix);
-    driver.waitForCondition("window.chocoReady", testReadyTimeout, function (err) {
+    driver.waitForCondition("window.chocoReady", testReadyTimeout, testInterval, function (err) {
       if (err) {
-        grunt.verbose.writeln("[%s] Unable to find `mocha.chocoReady` object. Trying to parse DOM", cfg.prefix);
+        grunt.debug.writeln("[%s] Unable to find `mocha.chocoReady` object.", cfg.prefix);
         callback(false);
         return;
-      //  var testResult = "mocha-stats"
-      //    , resultRegexp = /passes: (\d*)failures: (\d*)duration: ([d\,.]*)s/
-      //    , currentState = null
-      //    , retryCount = 0;
-      //  
-      //  driver.waitForElementById(testResult, testReadyTimeout, function () {
-      //    grunt.verbose.writeln("[%s] Found the test div, fetching the test results elements", cfg.prefix);
-      //    driver.elementById(testResult, function (err, el) {
-      //      if (err) {
-      //        grunt.log.error("[%s] Could not read test result for %s", cfg.prefix, driver.page);
-      //        grunt.log.error("[%s] %s", err);
-      //        grunt.log.error("[%s] More details at http://saucelabs.com/tests/%s", cfg.prefix, driver.page);
-      //        callback(false);
-      //        return;
-      //      } else {
-      //        callback(true); // @TODO: fix this ungodly hack.
-      //        grunt.log.writeln("Test Video: http://saucelabs.com/tests/%s", driver.sessionID);
-      //      }
-      //    });
-      //  });
       } else {
         parseResults();
       }
