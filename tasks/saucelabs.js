@@ -572,7 +572,7 @@ module.exports = function(grunt) {
       };
 
       var parseResults = function () {
-        driver.safeEval("JSON.stringify(window.mochaResults)", function(err, results) {
+        driver.safeEval("JSON.stringify(mocha.results)", function(err, results) {
           if (err) {
             grunt.log.error('Error - Could not check if tests are completed: %s', err);
             callback(false);
@@ -602,25 +602,28 @@ module.exports = function(grunt) {
       };
 
     grunt.verbose.writeln("[%s] Starting mocha tests for page", cfg.prefix);
-    driver.waitForCondition("window.chocoReady", testReadyTimeout, function (err) {
+    driver.waitForCondition("mocha.chocoReady", testReadyTimeout, function (err) {
       if (err) {
+
         // workaround to discover tests are done on Android stock browser
         var testResult = "mocha-stats",
             resultRegexp = /passes: (\d*)failures: (\d*)duration: ([\d,.]*)s/
             currentState = null,
             retryCount = 0;
-        driver.waitForElementById(testResult, testReadyTimeout, function () {
-          driver.elementById(testResult, function (err, el) {
-            if (err) {
-              grunt.log.error("[%s] Could not read test result for %s", cfg.prefix, err, driver.page);
-              grunt.log.error("[%s] More details at http://saucelabs.com/tests/%s", cfg.prefix, driver.page);
-              callback(false);
-              return;
-            }
-            callback(true); // @TODO: fix this ungodly hack.
-            grunt.log.writeln("Test Video: http://saucelabs.com/tests/%s", driver.sessionID);
-          });
-        });
+
+        // wait for the #mocha-stats element to appear
+        // driver.waitForElementById(testResult, testReadyTimeout, function () {
+        //   driver.elementById(testResult, function (err, el) {
+        //     if (err) {
+        //       grunt.log.error("[%s] Could not read test result for %s", cfg.prefix, err, driver.page);
+        //       grunt.log.error("[%s] More details at http://saucelabs.com/tests/%s", cfg.prefix, driver.page);
+        //       callback(false);
+        //       return;
+        //     }
+        //     callback(true); // @TODO: fix this ungodly hack.
+        //     grunt.log.writeln("Test Video: http://saucelabs.com/tests/%s", driver.sessionID);
+        //   });
+        // });
       } else {
         parseResults();
       }
