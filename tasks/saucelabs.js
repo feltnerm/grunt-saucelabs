@@ -300,7 +300,7 @@ module.exports = function(grunt) {
       * object which can then be viewing nicely on the Saucelabs site.
       */
       var parseResults = function () {
-        driver.safeEval("JSON.stringify(mocha.results)", function(err, results) {
+        driver.safeEval("JSON.stringify(window.mochaResults)", function(err, results) {
           if (err) {
             grunt.log.error('Error - Could not check if tests are completed: %s', err);
             callback(false);
