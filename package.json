@@ -3,11 +3,6 @@
   "description": "Grunt task running tests using Sauce Labs. Supports Qunit and Jasmine tests",
   "version": "4.0.4",
   "homepage": "https://github.com/feltnerm/grunt-saucelabs",
-  "author": {
-    "name": "Parashuram",
-    "email": "code@nparashuram.com",
-    "url": "http://nparashuram.com"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/feltnerm/grunt-saucelabs.git"
@@ -22,9 +17,6 @@
     }
   ],
   "main": "grunt.js",
-  "bin": {
-    "grunt-saucelabs-qunit": "bin/grunt-saucelabs-qunit"
-  },
   "engines": {
     "node": ">=0.6"
   },
@@ -52,7 +44,6 @@
     "gruntplugin",
     "grunt",
     "saucelabs",
-    "test",
-    "jasmine"
+    "test"
   ]
 }

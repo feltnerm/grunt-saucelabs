@@ -33,10 +33,10 @@ module.exports = function(grunt) {
 			options: {
 				jshintrc: __dirname + '/.jshintrc'
 			},
-			files: ['bin/grunt-saucelabs-qunit',
+			files: [
 				'tasks/**/*.js',
-				'test/qunit/grunt-saucelabs-inject.js',
-				'Gruntfile.js']
+				'Gruntfile.js'
+      ]
 		},
 		connect: {
 			server: {
@@ -47,20 +47,6 @@ module.exports = function(grunt) {
 			}
 		},
 
-		'saucelabs-yui': {
-			all: {
-				//username: '',
-				//key: '',
-				options: {
-					urls: ['http://127.0.0.1:9999/yui/index.html'],
-					tunnelTimeout: 5,
-					build: process.env.TRAVIS_JOB_ID,
-					concurrency: 3,
-					browsers: browsers,
-					testname: "yui tests"
-				}
-			}
-		},
 		'saucelabs-mocha': {
 			all: {
 				//username: '',
@@ -72,34 +58,6 @@ module.exports = function(grunt) {
 					concurrency: 3,
 					browsers: browsers,
 					testname: "mocha tests"
-				}
-			}
-		},
-		'saucelabs-qunit': {
-			all: {
-				//username: '',
-				//key: '',
-				options: {
-					urls: ['http://127.0.0.1:9999/qunit/index.html', 'http://127.0.0.1:9999/qunit/logs.html'],
-					tunnelTimeout: 5,
-					build: process.env.TRAVIS_JOB_ID,
-					concurrency: 3,
-					browsers: browsers,
-					testname: "qunit tests"
-				}
-			}
-		},
-		'saucelabs-jasmine': {
-			all: {
-				//username: 'parashu',
-				//key: '',
-				options: {
-					urls: ['http://127.0.0.1:9999/jasmine/SpecRunner.html', 'http://127.0.0.1:9999/jasmine/SpecRunnerDos.html'],
-					tunnelTimeout: 5,
-					build: process.env.TRAVIS_JOB_ID,
-					concurrency: 3,
-					browsers: browsers,
-					testname: "jasmine tests"
 				}
 			}
 		},
@@ -139,6 +97,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 
-	grunt.registerTask('test', ['connect', 'saucelabs-qunit', 'saucelabs-jasmine', 'saucelabs-yui', 'saucelabs-mocha']);
+	grunt.registerTask('test', ['connect', 'saucelabs-mocha']);
 	grunt.registerTask('default', ['jshint', 'test', 'publish']);
 };
