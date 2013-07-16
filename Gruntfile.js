@@ -33,10 +33,10 @@ module.exports = function(grunt) {
 			options: {
 				jshintrc: __dirname + '/.jshintrc'
 			},
-			files: [
+			files: ['bin/grunt-saucelabs-qunit',
 				'tasks/**/*.js',
-				'Gruntfile.js'
-      ]
+				'test/qunit/grunt-saucelabs-inject.js',
+				'Gruntfile.js']
 		},
 		connect: {
 			server: {
@@ -61,34 +61,7 @@ module.exports = function(grunt) {
 				}
 			}
 		},
-		publish: {
-			npm: {
-				username: process.env.NPM_USERNAME,
-				password: process.env.NPM_PASSWORD,
-				email: process.env.NPM_EMAIL
-			}
-		},
 		watch: {}
-	});
-
-	grunt.registerMultiTask('publish', 'Publish the latest version of this plugin', function() {
-		var done = this.async(),
-			me = this,
-			npm = require('npm');
-		npm.load({}, function() {
-			npm.registry.adduser(me.data.username, me.data.password, me.data.email, function(err) {
-				if (err) {
-					console.log(err);
-					done(true);
-				} else {
-					npm.config.set("email", me.data.email, "user");
-					npm.commands.publish([], function(err) {
-						console.log(err || "Published to registry");
-						done(true);
-					});
-				}
-			});
-		});
 	});
 
 	grunt.loadTasks('tasks');
@@ -97,6 +70,11 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 
-	grunt.registerTask('test', ['connect', 'saucelabs-mocha']);
-	grunt.registerTask('default', ['jshint', 'test', 'publish']);
+	var testjobs = ['jshint', 'connect'];
+	if (typeof process.env.SAUCE_ACCESS_KEY !== 'undefined'){
+		testjobs = testjobs.concat(['saucelabs-qunit', 'saucelabs-jasmine', 'saucelabs-yui', 'saucelabs-mocha']);
+	}
+
+	grunt.registerTask('test', testjobs);
+	grunt.registerTask('default', ['test']);
 };
